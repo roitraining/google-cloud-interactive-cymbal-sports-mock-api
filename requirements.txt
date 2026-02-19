@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google-cloud-firestore
+pandas
+pydantic
+python-multipart
+pytest
+httpx
