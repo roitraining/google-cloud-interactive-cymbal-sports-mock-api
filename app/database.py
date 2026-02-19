@@ -22,6 +22,46 @@ def get_inventory_item(item_id: str):
         return doc.to_dict()
     return None
 
+def get_products_by_category(category: str):
+    if not db:
+        print("Firestore not available.")
+        return []
+    
+    products_ref = db.collection("inventory")
+    query = products_ref.where("category", "==", category)
+    docs = query.stream()
+    
+    return [doc.to_dict() for doc in docs]
+
+def get_top_products():
+    if not db:
+        print("Firestore not available.")
+        return []
+    
+    # Mocking "Top Products" by just getting high rated ones
+    products_ref = db.collection("inventory")
+    query = products_ref.order_by("rating", direction=firestore.Query.DESCENDING).limit(5)
+    docs = query.stream()
+    
+    return [doc.to_dict() for doc in docs]
+
+def get_all_categories():
+    if not db:
+        print("Firestore not available.")
+        return []
+        
+    products_ref = db.collection("inventory")
+    # Get all docs but only the category field to be efficient
+    docs = products_ref.select(["category"]).stream()
+    
+    categories = set()
+    for doc in docs:
+        data = doc.to_dict()
+        if "category" in data:
+            categories.add(data["category"])
+            
+    return list(categories)
+
 def save_inventory_from_csv():
     if not db:
         print("Firestore not initialized. Skipping save.")

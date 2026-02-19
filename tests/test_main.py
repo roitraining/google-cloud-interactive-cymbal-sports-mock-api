@@ -9,6 +9,23 @@ def test_read_main():
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the Cymbal Sports Mock API"}
 
+@patch('app.database.get_all_categories')
+def test_get_categories(mock_get_categories):
+    mock_categories = ["Shoes", "Apparel", "Gear"]
+    mock_get_categories.return_value = mock_categories
+    # Note: URL is /products/categories
+    response = client.get("/products/categories")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+    assert "Shoes" in response.json()
+
+@patch('app.database.save_inventory_from_csv')
+def test_save_inventory(mock_save):
+    mock_save.return_value = True
+    response = client.get("/save_inventory") # Now a GET request
+    assert response.status_code == 200
+    assert response.json() == {"message": "Inventory saved successfully"}
+
 @patch('app.database.get_inventory_item')
 def test_get_product_details(mock_get_item):
     mock_item = {
@@ -32,6 +49,29 @@ def test_get_product_details_not_found(mock_get_item):
     mock_get_item.return_value = None
     response = client.get("/products/SKU-99999")
     assert response.status_code == 404
+
+@patch('app.database.get_top_products')
+def test_get_top_products(mock_get_top):
+    mock_products = [
+        {"id": "SKU-1", "category": "Shoes", "title": "Shoe 1", "description": "Desc", "price": 10.0, "inventory_status": "IN_STOCK", "rating": 5.0, "image_url": "url"},
+        {"id": "SKU-2", "category": "Shoes", "title": "Shoe 2", "description": "Desc", "price": 20.0, "inventory_status": "IN_STOCK", "rating": 4.9, "image_url": "url"}
+    ]
+    mock_get_top.return_value = mock_products
+    response = client.get("/products/top")
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+    assert response.json()[0]["id"] == "SKU-1"
+
+@patch('app.database.get_products_by_category')
+def test_get_products_by_category(mock_get_by_cat):
+    mock_products = [
+        {"id": "SKU-1", "category": "Running", "title": "Running Shoe", "description": "Desc", "price": 10.0, "inventory_status": "IN_STOCK", "rating": 5.0, "image_url": "url"}
+    ]
+    mock_get_by_cat.return_value = mock_products
+    response = client.get("/products/category/Running")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["category"] == "Running"
 
 def test_get_order_status():
     # Mock behavior is deterministic in code, so predictable

@@ -1,5 +1,6 @@
 import os
 import random
+from typing import List
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.models import (
@@ -20,7 +21,7 @@ app = FastAPI(
 async def root():
     return {"message": "Welcome to the Cymbal Sports Mock API"}
 
-@app.post("/save_inventory", tags=["Admin"], summary="Initialize Inventory")
+@app.get("/save_inventory", tags=["Admin"], summary="Initialize Inventory")
 async def save_inventory():
     """
     Load the inventory from the CSV file into Firestore. 
@@ -31,6 +32,33 @@ async def save_inventory():
         return {"message": "Inventory saved successfully"}
     else:
         raise HTTPException(status_code=500, detail="Failed to save inventory")
+
+@app.get("/products/categories", tags=["Products"], response_model=List[str])
+async def get_categories():
+    """
+    Get all unique object categories from the inventory.
+    """
+    return database.get_all_categories()
+
+@app.get("/products/top", tags=["Products"], response_model=List[InventoryItem])
+async def get_top_products():
+    """
+    Get 5 random products representing top sellers from the store.
+    """
+    products = database.get_top_products()
+    return products
+
+@app.get("/products/category/{category}", tags=["Products"], response_model=List[InventoryItem])
+async def get_products_by_category(category: str):
+    """
+    Get all products in a specific category.
+    """
+    products = database.get_products_by_category(category)
+    if not products:
+        # Should we return 404 or empty list? List is better for user experience but 404 is technically correct if none exist.
+        # But this is "get by category", if category is empty, return empty list.
+        return []
+    return products
 
 @app.get("/products/{item_id}", tags=["Products"], response_model=InventoryItem)
 async def get_product_details(item_id: str):
