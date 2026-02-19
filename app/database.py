@@ -3,6 +3,7 @@ import os
 import csv
 from google.cloud import firestore
 from app.models import InventoryItem, CartItem
+from app import config
 
 # Initialize Firestore
 db = None

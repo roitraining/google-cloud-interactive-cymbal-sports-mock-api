@@ -3,18 +3,28 @@ import random
 from typing import List
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from app.models import (
     InventoryItem, CartItem, User, LoginRequest, 
     CartAddRequest, CartRemoveRequest, OrderStatusResponse, 
     ReturnOrderRequest, ReturnOrderResponse
 )
 from app import database
+from app import config
 
 app = FastAPI(
     title="Cymbal Sports Mock API",
     description="Mock API for Cymbal Sports store for CX Agent Studio training.",
     version="1.0.0",
-    servers=[{"url": os.getenv("SERVICE_URL", "http://localhost:8080"), "description": "Cloud Run Service URL"}]
+    servers=[{"url": config.SERVICE_URL, "description": "Cloud Run Service URL"}]
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/", tags=["General"])

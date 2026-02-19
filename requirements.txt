@@ -4,5 +4,6 @@ google-cloud-firestore
 pandas
 pydantic
 python-multipart
+python-dotenv
 pytest
 httpx
