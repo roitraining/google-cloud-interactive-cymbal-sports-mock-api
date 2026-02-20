@@ -19,14 +19,14 @@ Once deployed, you can access the interactive API documentation at:
 `https://<YOUR_SERVICE_URL>/docs` (Swagger UI) or `https://<YOUR_SERVICE_URL>/redoc`.
 
 ### Key Endpoints:
-- `POST /save_inventory`: Initializes the database with mock inventory.
-- `GET /products/{item_id}`: Get product details.
-- `GET /orders/{order_id}`: Get order status.
-- `POST /orders/{order_id}/return`: Return an order.
-- `POST /cart/add`: Add item to cart.
-- `POST /cart/remove`: Remove item from cart.
-- `POST /users`: Create account.
-- `POST /login`: Login.
+- `GET /api/save_inventory`: Initializes the database with mock inventory.
+- `GET /api/products/{item_id}`: Get product details.
+- `GET /api/orders/{order_id}`: Get order status.
+- `POST /api/orders/{order_id}/return`: Return an order.
+- `POST /api/cart/add`: Add item to cart.
+- `POST /api/cart/remove`: Remove item from cart.
+- `POST /api/users`: Create account.
+- `POST /api/login`: Login.
 
 ## Setup & Deployment
 

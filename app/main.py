@@ -1,8 +1,9 @@
 import os
 import random
 from typing import List
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request, APIRouter
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.models import (
     InventoryItem, CartItem, User, LoginRequest, 
@@ -27,11 +28,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/", tags=["General"])
+# Mount static directory for the frontend
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/", tags=["UI"])
 async def root():
+    return FileResponse('app/static/index.html')
+
+# Create a router for the API endpoints
+api_router = APIRouter()
+
+@api_router.get("/", tags=["General"])
+async def api_root():
     return {"message": "Welcome to the Cymbal Sports Mock API"}
 
-@app.get("/save_inventory", tags=["Admin"], summary="Initialize Inventory")
+@api_router.get("/save_inventory", tags=["Admin"], summary="Initialize Inventory")
 async def save_inventory():
     """
     Load the inventory from the CSV file into Firestore. 
@@ -43,14 +54,14 @@ async def save_inventory():
     else:
         raise HTTPException(status_code=500, detail="Failed to save inventory")
 
-@app.get("/products/categories", tags=["Products"], response_model=List[str])
+@api_router.get("/products/categories", tags=["Products"], response_model=List[str])
 async def get_categories():
     """
     Get all unique object categories from the inventory.
     """
     return database.get_all_categories()
 
-@app.get("/products/top", tags=["Products"], response_model=List[InventoryItem])
+@api_router.get("/products/top", tags=["Products"], response_model=List[InventoryItem])
 async def get_top_products():
     """
     Get 5 random products representing top sellers from the store.
@@ -58,7 +69,7 @@ async def get_top_products():
     products = database.get_top_products()
     return products
 
-@app.get("/products/category/{category}", tags=["Products"], response_model=List[InventoryItem])
+@api_router.get("/products/category/{category}", tags=["Products"], response_model=List[InventoryItem])
 async def get_products_by_category(category: str):
     """
     Get all products in a specific category.
@@ -70,7 +81,7 @@ async def get_products_by_category(category: str):
         return []
     return products
 
-@app.get("/products/{item_id}", tags=["Products"], response_model=InventoryItem)
+@api_router.get("/products/{item_id}", tags=["Products"], response_model=InventoryItem)
 async def get_product_details(item_id: str):
     """
     Get details for a specific product by its ID (SKU).
@@ -80,7 +91,7 @@ async def get_product_details(item_id: str):
         return item
     raise HTTPException(status_code=404, detail="Item not found")
 
-@app.get("/orders/{order_id}", tags=["Orders"], response_model=OrderStatusResponse)
+@api_router.get("/orders/{order_id}", tags=["Orders"], response_model=OrderStatusResponse)
 async def get_order_status(order_id: str):
     """
     Get the status of an order. 
@@ -99,7 +110,7 @@ async def get_order_status(order_id: str):
         "estimated_delivery": "2023-12-01" # Mock date
     }
 
-@app.post("/orders/{order_id}/return", tags=["Orders"], response_model=ReturnOrderResponse)
+@api_router.post("/orders/{order_id}/return", tags=["Orders"], response_model=ReturnOrderResponse)
 async def return_order(order_id: str, request: ReturnOrderRequest):
     """
     Process a return for an order.
@@ -111,7 +122,7 @@ async def return_order(order_id: str, request: ReturnOrderRequest):
         "message": f"Return initiated for order {order_id}. Reason: {request.reason}"
     }
 
-@app.post("/cart/add", tags=["Cart"])
+@api_router.post("/cart/add", tags=["Cart"])
 async def add_item_to_cart(request: CartAddRequest):
     """
     Add an item to a user's cart.
@@ -121,7 +132,7 @@ async def add_item_to_cart(request: CartAddRequest):
         return {"message": "Item added to cart", "cart": database.get_cart(request.user_id)}
     raise HTTPException(status_code=400, detail="Failed to add item (Item might not exist)")
 
-@app.post("/cart/remove", tags=["Cart"])
+@api_router.post("/cart/remove", tags=["Cart"])
 async def remove_item_from_cart(request: CartRemoveRequest):
     """
     Remove an item from a user's cart.
@@ -131,7 +142,7 @@ async def remove_item_from_cart(request: CartRemoveRequest):
         return {"message": "Item removed from cart", "cart": database.get_cart(request.user_id)}
     raise HTTPException(status_code=400, detail="Failed to remove item (Item might not be in cart)")
 
-@app.get("/cart/{user_id}", tags=["Cart"], response_model=CartModel)
+@api_router.get("/cart/{user_id}", tags=["Cart"], response_model=CartModel)
 async def get_cart(user_id: str):
     """
     Get the current user's cart with full product details (title, price, image).
@@ -145,7 +156,7 @@ async def get_cart(user_id: str):
         total_price=cart_data["total_price"]
     )
 
-@app.post("/users", tags=["Users"])
+@api_router.post("/users", tags=["Users"])
 async def create_account(user: User):
     """
     Create a new user account.
@@ -155,7 +166,7 @@ async def create_account(user: User):
         return {"message": "User created successfully", "username": user.username}
     raise HTTPException(status_code=400, detail="User already exists")
 
-@app.post("/login", tags=["Users"])
+@api_router.post("/login", tags=["Users"])
 async def login(request: LoginRequest):
     """
     Log in a user.
@@ -164,3 +175,6 @@ async def login(request: LoginRequest):
     if success:
         return {"message": "Login successful", "token": "mock-token-123"}
     raise HTTPException(status_code=401, detail="Invalid username or password")
+
+# Include the router with the /api prefix
+app.include_router(api_router, prefix="/api")

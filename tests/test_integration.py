@@ -17,7 +17,7 @@ ORDER_ID = "ORDER-123456" # Mocked, so ID doesn't need to exist in DB
 ITEM_ID = "SKU-10001" # Should exist after save_inventory
 
 def test_root(client):
-    response = client.get("/")
+    response = client.get("/api/")
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the Cymbal Sports Mock API"}
 
@@ -27,14 +27,14 @@ def test_save_inventory(client):
     If it succeeds, it populates the DB.
     """
     print("\n[Integration] Initializing Inventory...")
-    response = client.get("/save_inventory")
+    response = client.get("/api/save_inventory")
     # It might fail if GOOGLE_APPLICATION_CREDENTIALS aren't set or valid
     # But for integration tests we assume environment is ready.
     assert response.status_code == 200
     assert response.json() == {"message": "Inventory saved successfully"}
 
 def test_get_categories(client):
-    response = client.get("/products/categories")
+    response = client.get("/api/products/categories")
     assert response.status_code == 200
     categories = response.json()
     assert isinstance(categories, list)
@@ -42,7 +42,7 @@ def test_get_categories(client):
     print(f"\n[Integration] Found categories: {categories}")
 
 def test_get_top_products(client):
-    response = client.get("/products/top")
+    response = client.get("/api/products/top")
     assert response.status_code == 200
     products = response.json()
     assert isinstance(products, list)
@@ -52,13 +52,13 @@ def test_get_top_products(client):
 
 def test_get_products_by_category(client):
     # First get a valid category
-    cat_response = client.get("/products/categories")
+    cat_response = client.get("/api/products/categories")
     categories = cat_response.json()
     if not categories:
         pytest.skip("No categories found to test filtering")
     
     category = categories[0]
-    response = client.get(f"/products/category/{category}")
+    response = client.get(f"/api/products/category/{category}")
     assert response.status_code == 200
     products = response.json()
     assert len(products) > 0
@@ -66,19 +66,19 @@ def test_get_products_by_category(client):
 
 def test_get_product_details(client):
     # Find a real product first
-    top_response = client.get("/products/top")
+    top_response = client.get("/api/products/top")
     products = top_response.json()
     if not products:
         pytest.skip("No products found to test details")
         
     item_id = products[0]["id"]
-    response = client.get(f"/products/{item_id}")
+    response = client.get(f"/api/products/{item_id}")
     assert response.status_code == 200
     product = response.json()
     assert product["id"] == item_id
 
 def test_create_user(client):
-    response = client.post("/users", json={"username": UNIQUE_USER, "password": UNIQUE_PASS})
+    response = client.post("/api/users", json={"username": UNIQUE_USER, "password": UNIQUE_PASS})
     # If user already exists from previous failed run, handle gracefully or expect success
     if response.status_code == 400:
         assert response.json()["detail"] == "User already exists"
@@ -87,21 +87,21 @@ def test_create_user(client):
         assert response.json()["username"] == UNIQUE_USER
 
 def test_login(client):
-    response = client.post("/login", json={"username": UNIQUE_USER, "password": UNIQUE_PASS})
+    response = client.post("/api/login", json={"username": UNIQUE_USER, "password": UNIQUE_PASS})
     assert response.status_code == 200
     assert "token" in response.json()
 
 def test_cart_workflow(client):
     # 1. Add to cart
     # Need a valid item ID.
-    top_response = client.get("/products/top")
+    top_response = client.get("/api/products/top")
     products = top_response.json()
     if not products:
         pytest.skip("No products found for cart test")
     
     item_id = products[0]["id"]
     
-    add_response = client.post("/cart/add", json={
+    add_response = client.post("/api/cart/add", json={
         "user_id": UNIQUE_USER, 
         "item_id": item_id, 
         "quantity": 2
@@ -111,7 +111,7 @@ def test_cart_workflow(client):
     assert cart["items"][item_id] == 2
     
     # 2. Remove from cart
-    remove_response = client.post("/cart/remove", json={
+    remove_response = client.post("/api/cart/remove", json={
         "user_id": UNIQUE_USER, 
         "item_id": item_id
     })
@@ -122,10 +122,10 @@ def test_cart_workflow(client):
 
 def test_order_mock_logic(client):
     # These are mocked so they don't depend on DB state, but good to test integration of the endpoint
-    status_response = client.get(f"/orders/{ORDER_ID}")
+    status_response = client.get(f"/api/orders/{ORDER_ID}")
     assert status_response.status_code == 200
     assert status_response.json()["order_id"] == ORDER_ID
     
-    return_response = client.post(f"/orders/{ORDER_ID}/return", json={"reason": "Test return"})
+    return_response = client.post(f"/api/orders/{ORDER_ID}/return", json={"reason": "Test return"})
     assert return_response.status_code == 200
     assert return_response.json()["status"] == "RETURN_INITIATED"

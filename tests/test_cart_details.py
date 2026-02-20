@@ -23,7 +23,7 @@ def test_get_cart_details(mock_get_details):
     }
     mock_get_details.return_value = mock_data
     
-    response = client.get("/cart/user123")
+    response = client.get("/api/cart/user123")
     assert response.status_code == 200
     
     # Validate against Pydantic model structure
@@ -42,7 +42,7 @@ def test_get_cart_empty(mock_get_details):
     }
     mock_get_details.return_value = mock_data
     
-    response = client.get("/cart/user123")
+    response = client.get("/api/cart/user123")
     assert response.status_code == 200
     data = response.json()
     assert len(data["items"]) == 0
