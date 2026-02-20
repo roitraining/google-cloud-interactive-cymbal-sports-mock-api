@@ -18,6 +18,11 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
+    <script defer
+      src="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/chat-messenger.js">
+    </script>
+    <link rel="stylesheet" href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/themes/chat-messenger-default.css">
+    <link rel="stylesheet" href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.10/themes/chat-messenger-layout.css">
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
     <div id="app" v-cloak class="flex flex-col min-h-screen">
@@ -283,24 +288,55 @@
             </div>
         </div>
 
-        <!-- Chat Placeholder (FAB) -->
-        <button class="fixed bottom-6 right-6 p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-40 flex items-center justify-center w-14 h-14 group">
-            <i class="ph ph-chat-teardrop-text text-2xl"></i>
+        <!-- Chat FAB -->
+        <button @click="showChat = !showChat" class="fixed bottom-6 right-6 p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50 flex items-center justify-center w-14 h-14 group">
+            <i class="ph" :class="showChat ? 'ph-x' : 'ph-chat-teardrop-text'"></i>
             <span class="absolute right-full mr-4 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                Chat (Coming Soon)
+                {{ showChat ? 'Close Chat' : 'Chat with Olympia' }}
             </span>
         </button>
+
+        <!-- Chat Widget Container -->
+        <div v-show="showChat" class="fixed bottom-24 right-6 z-40 bg-white rounded-lg shadow-xl overflow-hidden" 
+             style="width: 370px; height: 600px; max-height: 80vh;">
+            <chat-messenger url-allowlist="*">
+                <chat-messenger-container
+                    chat-title="Olympia - Cymbal Sports"
+                    chat-title-icon=""
+                    enable-file-upload
+                    enable-audio-input
+                >
+                    <chat-reset-session-button
+                        slot="titlebar-actions"
+                        title-text="Start new chat"
+                    ></chat-reset-session-button>
+                </chat-messenger-container>
+            </chat-messenger>
+        </div>
 
     </div>
 
     <!-- Application Logic -->
     <script>
+        window.addEventListener("chat-messenger-loaded", () => {
+          chatSdk.registerContext(
+            chatSdk.prebuilts.ces.createContext({
+              deploymentName: "projects/gcloud-interactive-courses/locations/us/apps/dcdd8e75-9b37-46ce-9b9a-8c6fd958e7ef/deployments/746b7e55-15ce-40c8-a935-9d44ee184dd0",
+              tokenBroker: {
+                enableTokenBroker: true,
+                enableRecaptcha: false,
+              },
+            }),
+          );
+        });
+        
         const { createApp, ref, onMounted, computed } = Vue;
 
         createApp({
             setup() {
                 const currentView = ref('home');
                 const showCart = ref(false);
+                const showChat = ref(false);
                 const categories = ref([]);
                 const topProducts = ref([]);
                 const products = ref([]);
@@ -450,7 +486,8 @@
                     loading,
                     loadCategory,
                     addToCart,
-                    removeFromCart
+                    removeFromCart,
+                    showChat
                 };
             }
         }).mount('#app');
