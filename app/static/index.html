@@ -17,6 +17,15 @@
             background-color: #f3f4f6;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.8s ease;
+        }
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+            position: absolute;
+        }
     </style>
     <script defer
       src="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/chat-messenger.js">
@@ -88,7 +97,7 @@
                             <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                                 <div class="sm:text-center lg:text-left">
                                     <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                                        <span class="block xl:inline">Elevate your game</span>
+                                        <span class="block xl:inline">Elevate your game </span>
                                         <span class="block text-indigo-600 xl:inline">with premium gear</span>
                                     </h1>
                                     <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
@@ -105,10 +114,31 @@
                             </main>
                         </div>
                     </div>
-                    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-100 flex items-center justify-center hero-pattern">
-                        <!-- Placeholder for a dynamic hero image -->
-                        <div class="text-center p-8">
-                             <img v-if="topProducts.length > 0" :src="topProducts[0].image_url" class="object-contain h-96 w-full drop-shadow-2xl transform rotate-[-12deg] hover:rotate-0 transition-transform duration-500" alt="Featured Product">
+                    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 overflow-hidden relative min-h-[500px] flex items-center justify-center">
+                        <transition-group name="fade" tag="div" class="w-full h-full relative">
+                            <div v-for="(slide, index) in carouselSlides" 
+                                 :key="slide.category" 
+                                 v-show="index === currentCarouselIndex"
+                                 class="absolute inset-0 flex flex-col items-center justify-center p-8 transition-opacity duration-1000">
+                                
+                                <div class="relative z-10 text-center mb-8 max-w-md">
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ slide.category }}</h3>
+                                    <p class="text-gray-600 bg-white/80 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-gray-100">{{ slide.blurb }}</p>
+                                </div>
+                                
+                                <img :src="slide.image_url" 
+                                     class="object-contain h-80 w-full drop-shadow-2xl transform hover:scale-105 transition-transform duration-500" 
+                                     :alt="slide.category + ' Product'">
+                            </div>
+                        </transition-group>
+                        
+                        <!-- Carousel Indicators -->
+                        <div class="absolute bottom-6 left-0 right-0 flex justify-center space-x-2 z-20">
+                            <button v-for="(_, index) in carouselSlides" 
+                                    :key="index"
+                                    @click="currentCarouselIndex = index"
+                                    :class="{'bg-indigo-600 w-6': currentCarouselIndex === index, 'bg-gray-300 w-2': currentCarouselIndex !== index}"
+                                    class="h-2 rounded-full transition-all duration-300"></button>
                         </div>
                     </div>
                 </div>
@@ -330,7 +360,7 @@
           );
         });
         
-        const { createApp, ref, onMounted, computed } = Vue;
+        const { createApp, ref, onMounted, onUnmounted, computed } = Vue;
 
         createApp({
             setup() {
@@ -345,12 +375,29 @@
                 const cart = ref({ items: [], total_price: 0 });
                 const loading = ref({ top: false, products: false, cart: false });
                 const notification = ref(null);
+                
+                // Carousel State
+                const carouselSlides = ref([]);
+                const currentCarouselIndex = ref(0);
+                let carouselInterval = null;
+
+                const categoryBlurbs = {
+                    'Camping': 'Explore the great outdoors with our durable camping gear.',
+                    'Baseball': 'Hit a home run with our premium baseball equipment.',
+                    'Apparel': 'Stay comfortable and stylish with our athletic apparel.',
+                    'Footwear': 'Step up your game with our high-performance footwear.',
+                    'Hunting': 'Gear up for your next expedition with our hunting essentials.',
+                    'Football': 'Dominate the field with our top-rated football gear.',
+                    'Golf': 'Perfect your swing with our professional golf equipment.',
+                    'Fishing': 'Reel in the big catch with our quality fishing tackle.'
+                };
 
                 // --- Utilities ---
                 const generateUserId = () => {
                     return 'user_' + Math.random().toString(36).substr(2, 9);
                 };
-
+                
+                // Initialize user if not present
                 if (!user.value) {
                     user.value = generateUserId();
                     localStorage.setItem('cymbal_user_id', user.value);
@@ -363,6 +410,47 @@
                         categories.value = await res.json();
                     } catch (e) {
                         console.error('Failed to fetch categories', e);
+                    }
+                };
+
+                const fetchCarouselData = async () => {
+                    // We need categories first
+                    if (categories.value.length === 0) {
+                        await fetchCategories();
+                    }
+                    
+                    const slides = [];
+                    // Pick up to 5 random categories if there are too many, or just shuffle all
+                    const shuffledCats = [...categories.value].sort(() => 0.5 - Math.random());
+                    
+                    for (const cat of shuffledCats) {
+                        try {
+                            const res = await fetch('/api/products/category/' + cat);
+                            const prods = await res.json();
+                            if (prods.length > 0) {
+                                const randomProd = prods[Math.floor(Math.random() * prods.length)];
+                                slides.push({
+                                    category: cat,
+                                    blurb: categoryBlurbs[cat] || `Premium gear for ${cat} enthusiasts.`,
+                                    image_url: randomProd.image_url
+                                });
+                            }
+                        } catch (e) {
+                            console.error(`Failed to fetch carousl data for ${cat}`, e);
+                        }
+                        // Limit to 5 slides for performance
+                        if (slides.length >= 5) break; 
+                    }
+                    carouselSlides.value = slides;
+                    startCarousel();
+                };
+
+                const startCarousel = () => {
+                    if (carouselInterval) clearInterval(carouselInterval);
+                    if (carouselSlides.value.length > 1) {
+                        carouselInterval = setInterval(() => {
+                            currentCarouselIndex.value = (currentCarouselIndex.value + 1) % carouselSlides.value.length;
+                        }, 5000);
                     }
                 };
 
@@ -382,16 +470,7 @@
                     loading.value.products = true;
                     try {
                         let url = '/api/products/category/' + category;
-                        // For 'all', we might not have an endpoint yet, so let's just stick to category for now
-                        // or fetch multiple if needed. 
-                        // Wait, user asked to "view by category".
-                        // If 'all' is selected, maybe we just show top products logic or fetch a few from each category?
-                        // Let's implement a "get all" or simple workaround.
-                        // For now, if 'all', just reuse top products or fetch from one category as demo.
                         if (category === 'all') {
-                             // Re-using top products logic is a bit weird for "Shop All".
-                             // Let's just fetch the first category's items for demo if no "all" endpoint exists.
-                             // Actually, let's just use the first category found.
                              if (categories.value.length > 0) {
                                  url = '/api/products/category/' + categories.value[0]; 
                              }
@@ -429,7 +508,6 @@
                             })
                         });
                         if (res.ok) {
-                            const data = await res.json();
                             // Refresh cart locally
                             await fetchCart();
                             showCart.value = true; // Open cart for feedback
@@ -470,6 +548,11 @@
                     await fetchCategories();
                     await fetchTopProducts();
                     await fetchCart();
+                    await fetchCarouselData();
+                });
+
+                onUnmounted(() => {
+                    if (carouselInterval) clearInterval(carouselInterval);
                 });
 
                 return {
@@ -487,7 +570,9 @@
                     loadCategory,
                     addToCart,
                     removeFromCart,
-                    showChat
+                    showChat,
+                    carouselSlides,
+                    currentCarouselIndex
                 };
             }
         }).mount('#app');
