@@ -157,7 +157,103 @@ def get_cart(user_id: str):
         data = doc.to_dict()
         return {"items": data.get("items", {})}
     return {"items": {}}
+
+def get_cart_details(user_id: str):
+    """
+    Returns full cart with product details (title, price, image) joined in.
+    """
+    if not db:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
     
+    # 1. Get Cart
+    cart_ref = db.collection("carts").document(user_id)
+    doc = cart_ref.get()
+    if not doc.exists:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
+    
+    data = doc.to_dict()
+    items_map = data.get("items", {}) # { "SKU-123": 2 }
+    
+    if not items_map:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
+        
+    enriched_items = []
+    total = 0.0
+    
+    for item_id, qty in items_map.items():
+        p_doc = db.collection("inventory").document(item_id).get()
+        if p_doc.exists:
+            p_data = p_doc.to_dict()
+            price = float(p_data.get("price", 0.0))
+            
+            enrich = {
+                "item_id": item_id,
+                "quantity": qty,
+                "title": p_data.get("title", "Unknown"),
+                "price": price,
+                "image_url": p_data.get("image_url", "")
+            }
+            enriched_items.append(enrich)
+            total += price * qty
+            
+    return {
+        "user_id": user_id,
+        "items": enriched_items,
+        "total_price": round(total, 2)
+    }
+    
+def get_cart_details(user_id: str):
+    """
+    Returns full cart with product details (title, price, image) joined in.
+    """
+    if not db:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
+    
+    # 1. Get Cart
+    cart_ref = db.collection("carts").document(user_id)
+    doc = cart_ref.get()
+    if not doc.exists:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
+    
+    data = doc.to_dict()
+    items_map = data.get("items", {}) # { "SKU-123": 2 }
+    
+    if not items_map:
+        return {"user_id": user_id, "items": [], "total_price": 0.0}
+        
+    # 2. Get All Products in one go (or loop if small list)
+    # Ideally use IN query, but Firestore limits IN to 10-30 items.
+    # For a cart, user usually has few items, so loop is okay for mock.
+    
+    enriched_items = []
+    total = 0.0
+    
+    for item_id, qty in items_map.items():
+        # Optimization: Could cache products or use getAll
+        p_doc = db.collection("inventory").document(item_id).get()
+        if p_doc.exists:
+            p_data = p_doc.to_dict()
+            price = float(p_data.get("price", 0.0))
+            if "total_price" not in p_data:
+                # Helper calculation fix
+                pass
+            
+            enrich = {
+                "item_id": item_id,
+                "quantity": qty,
+                "title": p_data.get("title", "Unknown"),
+                "price": price,
+                "image_url": p_data.get("image_url", "")
+            }
+            enriched_items.append(enrich)
+            total += price * qty
+            
+    return {
+        "user_id": user_id,
+        "items": enriched_items,
+        "total_price": round(total, 2)
+    }
+
 def create_user(username, password):
     if not db:
         return False

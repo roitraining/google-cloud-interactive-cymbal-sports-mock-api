@@ -44,3 +44,15 @@ class ReturnOrderResponse(BaseModel):
     order_id: str
     status: str
     message: str
+
+class CartItemDetail(BaseModel):
+    item_id: str
+    quantity: int
+    title: str
+    price: float
+    image_url: str
+
+class CartModel(BaseModel):
+    user_id: str
+    items: List[CartItemDetail]
+    total_price: float

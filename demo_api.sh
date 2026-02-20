@@ -80,22 +80,26 @@ run_api_call "Add SKU-10001 to Cart (Qty: 2)" "POST" "/cart/add" \
 run_api_call "Add SKU-10005 to Cart (Qty: 1)" "POST" "/cart/add" \
     "{\"user_id\": \"$USER_ID\", \"item_id\": \"SKU-10005\", \"quantity\": 1}"
 
+# 9. Get Cart Details
+run_api_call "Get Full Cart Details" "GET" "/cart/$USER_ID"
+
+# 10. Remove Item
 # 9. Remove Item
 run_api_call "Remove SKU-10001 from Cart" "POST" "/cart/remove" \
     "{\"user_id\": \"$USER_ID\", \"item_id\": \"SKU-10001\"}"
 
-# 10. Check Order Status (Mock)
+# 11. Check Order Status (Mock)
 run_api_call "Check Order Status (Mock Order ID)" "GET" "/orders/ORDER-999"
 
-# 11. Return Mock Order
+# 12. Return Mock Order
 run_api_call "Return Order" "POST" "/orders/ORDER-999/return" \
     "{\"order_id\": \"ORDER-999\", \"reason\": \"Wrong size\"}"
 
-# 12. Create User Account
+# 13. Create User Account
 run_api_call "Create User Account" "POST" "/users" \
     "{\"username\": \"$USER_ID\", \"password\": \"password123\"}"
 
-# 13. Login
+# 14. Login
 run_api_call "Login User" "POST" "/login" \
     "{\"username\": \"$USER_ID\", \"password\": \"password123\"}"
 

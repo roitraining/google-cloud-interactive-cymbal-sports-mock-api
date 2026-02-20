@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.models import (
     InventoryItem, CartItem, User, LoginRequest, 
     CartAddRequest, CartRemoveRequest, OrderStatusResponse, 
-    ReturnOrderRequest, ReturnOrderResponse
+    ReturnOrderRequest, ReturnOrderResponse, CartModel
 )
 from app import database
 from app import config
@@ -130,6 +130,20 @@ async def remove_item_from_cart(request: CartRemoveRequest):
     if success:
         return {"message": "Item removed from cart", "cart": database.get_cart(request.user_id)}
     raise HTTPException(status_code=400, detail="Failed to remove item (Item might not be in cart)")
+
+@app.get("/cart/{user_id}", tags=["Cart"], response_model=CartModel)
+async def get_cart(user_id: str):
+    """
+    Get the current user's cart with full product details (title, price, image).
+    Useful for displaying the cart to the user in a rich response.
+    """
+    cart_data = database.get_cart_details(user_id)
+    # Map dictionary to Pydantic model
+    return CartModel(
+        user_id=cart_data["user_id"],
+        items=cart_data["items"], # List of dicts matching CartItemDetail
+        total_price=cart_data["total_price"]
+    )
 
 @app.post("/users", tags=["Users"])
 async def create_account(user: User):
