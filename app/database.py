@@ -23,16 +23,113 @@ def get_inventory_item(item_id: str):
         return doc.to_dict()
     return None
 
+
+def validate_category(category: str):
+    """
+    Validates and normalizes category names, handling synonyms and case sensitivity.
+    """
+    if not category:
+        return None
+        
+    # Standardize to Title Case for matching our DB (e.g. "basketball" -> "Basketball")
+    normalized_cat = category.strip().title()
+    
+    # Map common synonyms/plurals to canonical categories
+    synonyms = {
+        # Apparel
+        "Clothing": "Apparel",
+        "Clothes": "Apparel",
+        "Wear": "Apparel",
+        "Jackets": "Apparel",
+        "Shirts": "Apparel",
+        "Shirt": "Apparel",
+        "T-Shirt": "Apparel",
+        "T-Shirts": "Apparel",
+        "Pants": "Apparel",
+        
+        # Footwear
+        "Shoes": "Footwear",
+        "Shoe": "Footwear",
+        "Sneakers": "Footwear",
+        "Sneaker": "Footwear",
+        "Boots": "Footwear",
+        "Boot": "Footwear",
+        "Sandals": "Footwear",
+        "Sandal": "Footwear",
+        "Cleats": "Footwear",
+        "Cleat": "Footwear",
+        
+        # Basketball
+        "Basketballs": "Basketball",
+        "Hoops": "Basketball",
+        
+        # Baseball
+        "Baseballs": "Baseball",
+        
+        # Football
+        "Footballs": "Football",
+        "Pads": "Football",
+        
+        # Golf
+        "Golfs": "Golf",
+        "Clubs": "Golf",
+        "Club": "Golf",
+        
+        # Camping
+        "Tents": "Camping",
+        "Tent": "Camping",
+        "Gear": "Camping",
+        
+        # Fishing
+        "Fish": "Fishing",
+        "Rods": "Fishing",
+        "Rod": "Fishing",
+        "Lures": "Fishing",
+        "Lure": "Fishing",
+        
+        # Hunting
+        "Hunt": "Hunting",
+    }
+    
+    # Check exact match or synonym
+    return synonyms.get(normalized_cat, normalized_cat)
+
 def get_products_by_category(category: str):
     if not db:
         print("Firestore not available.")
         return []
     
+    # Normalize category (handle case sensitivity and synonyms)
+    valid_category = validate_category(category)
+    
     products_ref = db.collection("inventory")
-    query = products_ref.where("category", "==", category)
+    query = products_ref.where("category", "==", valid_category)
     docs = query.stream()
     
     return [doc.to_dict() for doc in docs]
+
+def search_products(search_query: str):
+    if not db:
+        print("Firestore not available.")
+        return []
+    
+    products_ref = db.collection("inventory")
+    # Firestore doesn't support naive substring search. 
+    # Since dataset is small (mock), fetch all and filter in Python.
+    docs = products_ref.stream()
+    
+    results = []
+    query_lower = search_query.lower().strip()
+    
+    for doc in docs:
+        data = doc.to_dict()
+        title = data.get("title", "").lower()
+        description = data.get("description", "").lower() # search in description too? User said Product Name. I'll stick to title mostly, or match both for robustness? User said "Product Name" but robust usually implies both. I will check Title for now as requested.
+        
+        if query_lower in title:
+            results.append(data)
+            
+    return results
 
 def get_top_products():
     if not db:

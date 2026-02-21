@@ -69,6 +69,16 @@ async def get_top_products():
     products = database.get_top_products()
     return products
 
+
+@api_router.get("/products/search", tags=["Products"], response_model=List[InventoryItem])
+async def search_products(q: str):
+    """
+    Search for products by name.
+    """
+    if not q:
+        return []
+    return database.search_products(q)
+
 @api_router.get("/products/category/{category}", tags=["Products"], response_model=List[InventoryItem])
 async def get_products_by_category(category: str):
     """
