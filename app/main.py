@@ -1,5 +1,6 @@
 import os
 import random
+import uuid
 from typing import List
 from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +8,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.models import (
     InventoryItem, CartItem, User, LoginRequest, 
-    CartAddRequest, CartRemoveRequest, OrderStatusResponse, 
+    CartAddRequest, CartRemoveRequest, CheckoutRequest, OrderStatusResponse, 
     ReturnOrderRequest, ReturnOrderResponse, CartModel
 )
 from app import database
@@ -64,7 +65,7 @@ async def get_categories():
 @api_router.get("/products/top", tags=["Products"], response_model=List[InventoryItem])
 async def get_top_products():
     """
-    Get 5 random products representing top sellers from the store.
+    Get 8 random products representing top sellers from the store.
     """
     products = database.get_top_products()
     return products
@@ -166,25 +167,38 @@ async def get_cart(user_id: str):
         total_price=cart_data["total_price"]
     )
 
+@api_router.post("/cart/checkout", tags=["Cart"])
+async def checkout(request: CheckoutRequest):
+    """
+    Checkout the current user's cart.
+    Generates a random order ID and clears the cart.
+    """
+    cart = database.get_cart(request.user_id)
+    if not cart or not cart.get('items'):
+       raise HTTPException(status_code=400, detail="Cart is empty")
+
+    order_id = str(uuid.uuid4())
+    success = database.clear_cart(request.user_id)
+    
+    if success:
+        return {"message": "Checkout successful", "order_id": order_id}
+    raise HTTPException(status_code=500, detail="Failed to clear cart")
+
 @api_router.post("/users", tags=["Users"])
 async def create_account(user: User):
     """
     Create a new user account.
     """
-    success = database.create_user(user.username, user.password)
-    if success:
-        return {"message": "User created successfully", "username": user.username}
-    raise HTTPException(status_code=400, detail="User already exists")
+    # Mock behavior: Always detailed success without DB
+    return {"message": "User created successfully", "username": user.username}
 
 @api_router.post("/login", tags=["Users"])
 async def login(request: LoginRequest):
     """
     Log in a user.
     """
-    success = database.verify_user(request.username, request.password)
-    if success:
-        return {"message": "Login successful", "token": "mock-token-123"}
-    raise HTTPException(status_code=401, detail="Invalid username or password")
+    # Mock behavior: Always allow login
+    return {"message": "Login successful", "token": "mock-token-123"}
 
 # Include the router with the /api prefix
 app.include_router(api_router, prefix="/api")

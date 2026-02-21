@@ -1,6 +1,7 @@
 
 import os
 import csv
+import random
 from google.cloud import firestore
 from app.models import InventoryItem, CartItem
 from app import config
@@ -136,12 +137,19 @@ def get_top_products():
         print("Firestore not available.")
         return []
     
-    # Mocking "Top Products" by just getting high rated ones
+    # Mocking "Top Products" by randomly selecting 8 items
     products_ref = db.collection("inventory")
-    query = products_ref.order_by("rating", direction=firestore.Query.DESCENDING).limit(5)
-    docs = query.stream()
+    # For a small dataset, fetching all is fine. For larger, we'd need a better strategy.
+    docs = list(products_ref.stream())
     
-    return [doc.to_dict() for doc in docs]
+    if not docs:
+        return []
+
+    # Select 8 random products (or fewer if less than 8 exist)
+    count = min(len(docs), 8)
+    selected_docs = random.sample(docs, count)
+    
+    return [doc.to_dict() for doc in selected_docs]
 
 def get_all_categories():
     if not db:
@@ -243,6 +251,14 @@ def remove_item_from_cart(user_id: str, item_id: str):
         return True
         
     return False
+
+def clear_cart(user_id: str):
+    if not db:
+        return False
+        
+    cart_ref = db.collection("carts").document(user_id)
+    cart_ref.set({"items": {}})
+    return True
 
 def get_cart(user_id: str):
     if not db:

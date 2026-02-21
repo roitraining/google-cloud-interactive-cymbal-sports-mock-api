@@ -32,6 +32,9 @@ class CartRemoveRequest(BaseModel):
     user_id: str
     item_id: str
 
+class CheckoutRequest(BaseModel):
+    user_id: str
+
 class OrderStatusResponse(BaseModel):
     order_id: str
     status: str
