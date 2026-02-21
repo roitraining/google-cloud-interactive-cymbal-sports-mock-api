@@ -8,8 +8,26 @@ client = TestClient(app)
 def test_search_products(mock_search):
     # Mock data
     mock_results = [
-        {"id": "SKU-1", "title": "Soccer Ball"},
-        {"id": "SKU-2", "title": "Basketball"}
+        {
+            "id": "SKU-1", 
+            "title": "Soccer Ball", 
+            "category": "Sports",
+            "description": "A great ball",
+            "price": 20.0,
+            "inventory_status": "IN_STOCK",
+            "rating": 4.5,
+            "image_url": "http://example.com/ball.jpg"
+        },
+        {
+            "id": "SKU-2", 
+            "title": "Basketball",
+            "category": "Sports",
+            "description": "Good grip",
+            "price": 25.0,
+            "inventory_status": "IN_STOCK",
+            "rating": 4.8,
+            "image_url": "http://example.com/bball.jpg"
+        }
     ]
     mock_search.return_value = mock_results
     
