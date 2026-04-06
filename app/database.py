@@ -151,6 +151,14 @@ def get_top_products():
     
     return [doc.to_dict() for doc in selected_docs]
 
+def get_all_products():
+    if not db:
+        print("Firestore not available.")
+        return []
+    products_ref = db.collection("inventory")
+    docs = products_ref.stream()
+    return [doc.to_dict() for doc in docs]
+
 def get_all_categories():
     if not db:
         print("Firestore not available.")

@@ -62,6 +62,13 @@ async def get_categories():
     """
     return database.get_all_categories()
 
+@api_router.get("/products/all", tags=["Products"], response_model=List[InventoryItem])
+async def get_all_products():
+    """
+    Get all products from the inventory.
+    """
+    return database.get_all_products()
+
 @api_router.get("/products/top", tags=["Products"], response_model=List[InventoryItem])
 async def get_top_products():
     """
