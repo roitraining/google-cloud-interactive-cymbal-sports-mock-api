@@ -2,19 +2,25 @@
 import os
 import csv
 import random
-from google.cloud import firestore
 from app.models import InventoryItem, CartItem
 from app import config
 
-# Initialize Firestore
-db = None
-try:
-    db = firestore.Client()
-    print("Firestore client initialized.")
-except Exception as e:
-    print(f"Warning: Could not initialize Firestore client. {e}")
+# Firestore client is initialized lazily on first use to reduce cold start time.
+_db = None
+
+def _get_db():
+    global _db
+    if _db is None:
+        from google.cloud import firestore
+        try:
+            _db = firestore.Client()
+            print("Firestore client initialized.")
+        except Exception as e:
+            print(f"Warning: Could not initialize Firestore client. {e}")
+    return _db
 
 def get_inventory_item(item_id: str):
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return None
@@ -96,6 +102,7 @@ def validate_category(category: str):
     return synonyms.get(normalized_cat, normalized_cat)
 
 def get_products_by_category(category: str):
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return []
@@ -110,6 +117,7 @@ def get_products_by_category(category: str):
     return [doc.to_dict() for doc in docs]
 
 def search_products(search_query: str):
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return []
@@ -133,6 +141,7 @@ def search_products(search_query: str):
     return results
 
 def get_top_products():
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return []
@@ -152,6 +161,7 @@ def get_top_products():
     return [doc.to_dict() for doc in selected_docs]
 
 def get_all_products():
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return []
@@ -160,6 +170,7 @@ def get_all_products():
     return [doc.to_dict() for doc in docs]
 
 def get_all_categories():
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return []
@@ -177,6 +188,7 @@ def get_all_categories():
     return list(categories)
 
 def save_inventory_from_csv():
+    db = _get_db()
     if not db:
         print("Firestore not initialized. Skipping save.")
         return False
@@ -220,6 +232,7 @@ def save_inventory_from_csv():
         return False
 
 def add_item_to_cart(user_id: str, item_id: str, quantity: int):
+    db = _get_db()
     if not db:
         print("Firestore not available.")
         return False
@@ -241,6 +254,7 @@ def add_item_to_cart(user_id: str, item_id: str, quantity: int):
     return True
 
 def remove_item_from_cart(user_id: str, item_id: str):
+    db = _get_db()
     if not db:
         return False
         
@@ -261,6 +275,7 @@ def remove_item_from_cart(user_id: str, item_id: str):
     return False
 
 def clear_cart(user_id: str):
+    db = _get_db()
     if not db:
         return False
         
@@ -269,6 +284,7 @@ def clear_cart(user_id: str):
     return True
 
 def get_cart(user_id: str):
+    db = _get_db()
     if not db:
         return {"items": {}}
     
@@ -283,50 +299,7 @@ def get_cart_details(user_id: str):
     """
     Returns full cart with product details (title, price, image) joined in.
     """
-    if not db:
-        return {"user_id": user_id, "items": [], "total_price": 0.0}
-    
-    # 1. Get Cart
-    cart_ref = db.collection("carts").document(user_id)
-    doc = cart_ref.get()
-    if not doc.exists:
-        return {"user_id": user_id, "items": [], "total_price": 0.0}
-    
-    data = doc.to_dict()
-    items_map = data.get("items", {}) # { "SKU-123": 2 }
-    
-    if not items_map:
-        return {"user_id": user_id, "items": [], "total_price": 0.0}
-        
-    enriched_items = []
-    total = 0.0
-    
-    for item_id, qty in items_map.items():
-        p_doc = db.collection("inventory").document(item_id).get()
-        if p_doc.exists:
-            p_data = p_doc.to_dict()
-            price = float(p_data.get("price", 0.0))
-            
-            enrich = {
-                "item_id": item_id,
-                "quantity": qty,
-                "title": p_data.get("title", "Unknown"),
-                "price": price,
-                "image_url": p_data.get("image_url", "")
-            }
-            enriched_items.append(enrich)
-            total += price * qty
-            
-    return {
-        "user_id": user_id,
-        "items": enriched_items,
-        "total_price": round(total, 2)
-    }
-    
-def get_cart_details(user_id: str):
-    """
-    Returns full cart with product details (title, price, image) joined in.
-    """
+    db = _get_db()
     if not db:
         return {"user_id": user_id, "items": [], "total_price": 0.0}
     
@@ -376,6 +349,7 @@ def get_cart_details(user_id: str):
     }
 
 def create_user(username, password):
+    db = _get_db()
     if not db:
         return False
     # Simple store, plain text password for mock
@@ -387,6 +361,7 @@ def create_user(username, password):
     return True
 
 def verify_user(username, password):
+    db = _get_db()
     if not db:
         return True # Mock success if DB down? No, fail secure.
     user_ref = db.collection("users").document(username)
