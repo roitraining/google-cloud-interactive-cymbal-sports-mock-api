@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,53 +11,59 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     <style>
-        [v-cloak] { display: none; }
+        [v-cloak] {
+            display: none;
+        }
+
         .hero-pattern {
             background-color: #f3f4f6;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
+
         .fade-enter-active,
         .fade-leave-active {
             transition: opacity 0.8s ease;
         }
+
         .fade-enter-from,
         .fade-leave-to {
             opacity: 0;
             position: absolute;
         }
     </style>
-    <script defer
-      src="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/chat-messenger.js">
+    <script defer src="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/chat-messenger.js">
     </script>
-    <link rel="stylesheet" href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/themes/chat-messenger-default.css">
-    <link rel="stylesheet" href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.10/themes/chat-messenger-layout.css">
+    <link rel="stylesheet"
+        href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.12/themes/chat-messenger-default.css">
+    <link rel="stylesheet"
+        href="https://www.gstatic.com/ces-console/fast/chat-messenger/prod/v1.10/themes/chat-messenger-layout.css">
 </head>
+
 <body class="bg-gray-50 text-gray-800 antialiased">
     <div id="app" v-cloak class="flex flex-col min-h-screen">
-        
+
         <!-- Navigation -->
         <nav class="bg-white shadow-sm sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
                         <a href="#" @click.prevent="currentView = 'home'" class="flex-shrink-0 flex items-center gap-2">
-                            <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                            <span
+                                class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                                 Cymbal Sports
                             </span>
                         </a>
                         <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
-                            <a href="#" 
-                               @click.prevent="currentView = 'home'"
-                               :class="{'border-blue-500 text-gray-900': currentView === 'home', 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700': currentView !== 'home'}"
-                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <a href="#" @click.prevent="currentView = 'home'"
+                                :class="{'border-blue-500 text-gray-900': currentView === 'home', 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700': currentView !== 'home'}"
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Home
                             </a>
-                            <a href="#" 
-                               @click.prevent="loadCategory('all')"
-                               :class="{'border-blue-500 text-gray-900': currentView === 'products', 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700': currentView !== 'products'}"
-                               class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <a href="#" @click.prevent="loadCategory('all')"
+                                :class="{'border-blue-500 text-gray-900': currentView === 'products', 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700': currentView !== 'products'}"
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Shop All
                             </a>
                         </div>
@@ -64,49 +71,58 @@
                     <div class="flex items-center gap-4">
                         <button @click="showCart = true" class="relative p-2 text-gray-400 hover:text-gray-500">
                             <i class="ph ph-shopping-cart text-2xl"></i>
-                            <span v-if="cartCount > 0" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                            <span v-if="cartCount > 0"
+                                class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
                                 {{ cartCount }}
                             </span>
                         </button>
-                        <div class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-gray-900" 
-                             @click="userClick">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-gray-900"
+                            @click="userClick">
                             <i class="ph ph-user-circle text-xl"></i>
                             <span class="hidden sm:inline">{{ isLoggedIn ? user : 'Guest' }}</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Mobile menu (simplified) -->
             <div class="sm:hidden border-t border-gray-200">
                 <div class="flex overflow-x-auto py-2 px-4 gap-4 no-scrollbar">
-                    <button @click="currentView = 'home'" class="whitespace-nowrap text-sm font-medium text-gray-600">Home</button>
-                    <button v-for="cat in categories" :key="cat" @click="loadCategory(cat)" class="whitespace-nowrap text-sm font-medium text-gray-600">{{ cat }}</button>
+                    <button @click="currentView = 'home'"
+                        class="whitespace-nowrap text-sm font-medium text-gray-600">Home</button>
+                    <button v-for="cat in categories" :key="cat" @click="loadCategory(cat)"
+                        class="whitespace-nowrap text-sm font-medium text-gray-600">{{ cat }}</button>
                 </div>
             </div>
         </nav>
 
         <!-- Main Content -->
         <main class="flex-grow">
-            
+
             <!-- Home View -->
             <div v-if="currentView === 'home'">
                 <!-- Hero Section -->
                 <div class="relative bg-white overflow-hidden">
                     <div class="max-w-7xl mx-auto">
-                        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-                            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                        <div
+                            class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+                            <main
+                                class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                                 <div class="sm:text-center lg:text-left">
-                                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                                    <h1
+                                        class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                                         <span class="block xl:inline">Elevate your game </span>
                                         <span class="block text-indigo-600 xl:inline">with premium gear</span>
                                     </h1>
-                                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                                        Discover top-tier equipment for every sport. From the field to the court, Cymbal Sports has everything you need to perform at your best.
+                                    <p
+                                        class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                                        Discover top-tier equipment for every sport. From the field to the court, Cymbal
+                                        Sports has everything you need to perform at your best.
                                     </p>
                                     <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                                         <div class="rounded-md shadow">
-                                            <a href="#" @click.prevent="loadCategory('all')" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
+                                            <a href="#" @click.prevent="loadCategory('all')"
+                                                class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
                                                 Shop Collection
                                             </a>
                                         </div>
@@ -148,24 +164,30 @@
                 <div class="bg-gray-50 py-12">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <h2 class="text-3xl font-extrabold text-gray-900 mb-8">Top Sellers</h2>
-                        
+
                         <div v-if="loading.top" class="flex justify-center py-12">
                             <i class="ph ph-spinner animate-spin text-4xl text-indigo-600"></i>
                         </div>
-                        
+
                         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div v-for="product in topProducts" :key="product.id" @click="openProductDetails(product)" class="cursor-pointer group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
+                            <div v-for="product in topProducts" :key="product.id" @click="openProductDetails(product)"
+                                class="cursor-pointer group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
                                 <div class="relative pt-[100%] bg-gray-100 overflow-hidden">
-                                     <img :src="product.image_url" :alt="product.title" class="absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110">
-                                     <div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-gray-900 shadow-sm">
-                                         ${{ product.price }}
-                                     </div>
+                                    <img :src="product.image_url" :alt="product.title"
+                                        class="absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110">
+                                    <div
+                                        class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-gray-900 shadow-sm">
+                                        ${{ product.price }}
+                                    </div>
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
-                                    <p class="text-xs text-indigo-600 font-semibold uppercase tracking-wide">{{ product.category }}</p>
-                                    <h3 class="mt-1 text-lg font-medium text-gray-900 line-clamp-2">{{ product.title }}</h3>
+                                    <p class="text-xs text-indigo-600 font-semibold uppercase tracking-wide">{{
+                                        product.category }}</p>
+                                    <h3 class="mt-1 text-lg font-medium text-gray-900 line-clamp-2">{{ product.title }}
+                                    </h3>
                                     <div class="mt-4 flex items-center justify-between mt-auto">
-                                        <button @click.stop="addToCart(product)" class="w-full flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                        <button @click.stop="addToCart(product)"
+                                            class="w-full flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
                                             <i class="ph ph-plus"></i> Add to Cart
                                         </button>
                                     </div>
@@ -183,13 +205,12 @@
                     <div class="w-full md:w-64 flex-shrink-0">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Categories</h3>
                         <div class="space-y-2">
-                            <button @click="loadCategory('all')" 
+                            <button @click="loadCategory('all')"
                                 :class="{'bg-indigo-50 text-indigo-700': activeCategory === 'all', 'text-gray-600 hover:bg-gray-50': activeCategory !== 'all'}"
                                 class="w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors">
                                 All Products
                             </button>
-                            <button v-for="cat in categories" :key="cat" 
-                                @click="loadCategory(cat)"
+                            <button v-for="cat in categories" :key="cat" @click="loadCategory(cat)"
                                 :class="{'bg-indigo-50 text-indigo-700': activeCategory === cat, 'text-gray-600 hover:bg-gray-50': activeCategory !== cat}"
                                 class="w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors">
                                 {{ cat }}
@@ -200,7 +221,8 @@
                     <!-- Product Grid -->
                     <div class="flex-grow">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-gray-900">{{ activeCategory === 'all' ? 'All Products' : activeCategory }}</h2>
+                            <h2 class="text-2xl font-bold text-gray-900">{{ activeCategory === 'all' ? 'All Products' :
+                                activeCategory }}</h2>
                             <span class="text-sm text-gray-500">{{ products.length }} items</span>
                         </div>
 
@@ -213,18 +235,24 @@
                         </div>
 
                         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                             <div v-for="product in products" :key="product.id" @click="openProductDetails(product)" class="cursor-pointer group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
+                            <div v-for="product in products" :key="product.id" @click="openProductDetails(product)"
+                                class="cursor-pointer group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
                                 <div class="relative pt-[100%] bg-gray-100 overflow-hidden">
-                                     <img :src="product.image_url" :alt="product.title" class="absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110">
-                                     <div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-gray-900 shadow-sm">
-                                         ${{ product.price }}
-                                     </div>
+                                    <img :src="product.image_url" :alt="product.title"
+                                        class="absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110">
+                                    <div
+                                        class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-gray-900 shadow-sm">
+                                        ${{ product.price }}
+                                    </div>
                                 </div>
                                 <div class="p-4 flex-grow flex flex-col">
-                                    <p class="text-xs text-indigo-600 font-semibold uppercase tracking-wide">{{ product.category }}</p>
-                                    <h3 class="mt-1 text-lg font-medium text-gray-900 line-clamp-2">{{ product.title }}</h3>
+                                    <p class="text-xs text-indigo-600 font-semibold uppercase tracking-wide">{{
+                                        product.category }}</p>
+                                    <h3 class="mt-1 text-lg font-medium text-gray-900 line-clamp-2">{{ product.title }}
+                                    </h3>
                                     <div class="mt-4 flex items-center justify-between mt-auto">
-                                        <button @click.stop="addToCart(product)" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                                        <button @click.stop="addToCart(product)"
+                                            class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors">
                                             Add to Cart
                                         </button>
                                     </div>
@@ -255,16 +283,20 @@
         </footer>
 
         <!-- Cart Sidebar -->
-        <div v-show="showCart" class="fixed inset-0 overflow-hidden z-[60]" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <div v-show="showCart" class="fixed inset-0 overflow-hidden z-[60]" aria-labelledby="slide-over-title"
+            role="dialog" aria-modal="true">
             <div class="absolute inset-0 overflow-hidden">
-                <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showCart = false" aria-hidden="true"></div>
+                <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showCart = false"
+                    aria-hidden="true"></div>
                 <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-                    <div class="w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700 bg-white shadow-xl flex flex-col h-full">
-                         <div class="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
+                    <div
+                        class="w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700 bg-white shadow-xl flex flex-col h-full">
+                        <div class="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
                             <div class="flex items-start justify-between">
                                 <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">Shopping Cart</h2>
                                 <div class="ml-3 h-7 flex items-center">
-                                    <button @click="showCart = false" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
+                                    <button @click="showCart = false"
+                                        class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
                                         <span class="sr-only">Close panel</span>
                                         <i class="ph ph-x text-2xl"></i>
                                     </button>
@@ -275,26 +307,33 @@
                                 <div v-if="cartItems.length === 0" class="text-center py-20 text-gray-500">
                                     <i class="ph ph-basket text-4xl mb-4 text-gray-300"></i>
                                     <p>Your cart is empty.</p>
-                                    <button @click="showCart = false; loadCategory('all')" class="mt-4 text-indigo-600 hover:text-indigo-500 font-medium">Start Shopping</button>
+                                    <button @click="showCart = false; loadCategory('all')"
+                                        class="mt-4 text-indigo-600 hover:text-indigo-500 font-medium">Start
+                                        Shopping</button>
                                 </div>
                                 <div v-else class="flow-root">
                                     <ul role="list" class="-my-6 divide-y divide-gray-200">
                                         <li v-for="item in cartItems" :key="item.item_id" class="py-6 flex">
-                                            <div class="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden bg-gray-50">
-                                                <img :src="item.image_url" :alt="item.title" class="w-full h-full object-contain p-2">
+                                            <div
+                                                class="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden bg-gray-50">
+                                                <img :src="item.image_url" :alt="item.title"
+                                                    class="w-full h-full object-contain p-2">
                                             </div>
                                             <div class="ml-4 flex-1 flex flex-col">
                                                 <div>
-                                                    <div class="flex justify-between text-base font-medium text-gray-900">
+                                                    <div
+                                                        class="flex justify-between text-base font-medium text-gray-900">
                                                         <h3 class="line-clamp-2"><a href="#">{{ item.title }}</a></h3>
-                                                        <p class="ml-4">${{ (item.price * item.quantity).toFixed(2) }}</p>
+                                                        <p class="ml-4">${{ (item.price * item.quantity).toFixed(2) }}
+                                                        </p>
                                                     </div>
                                                     <p class="mt-1 text-sm text-gray-500">${{ item.price }} each</p>
                                                 </div>
                                                 <div class="flex-1 flex items-end justify-between text-sm">
                                                     <p class="text-gray-500">Qty {{ item.quantity }}</p>
                                                     <div class="flex">
-                                                        <button @click="removeFromCart(item)" type="button" class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
+                                                        <button @click="removeFromCart(item)" type="button"
+                                                            class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -311,7 +350,8 @@
                             </div>
                             <p class="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                             <div class="mt-6">
-                                <a href="#" @click.prevent="checkout" class="flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 w-full">Checkout</a>
+                                <a href="#" @click.prevent="checkout"
+                                    class="flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 w-full">Checkout</a>
                             </div>
                         </div>
                     </div>
@@ -320,39 +360,41 @@
         </div>
 
         <!-- Chat FAB -->
-        <button @click="showChat = !showChat" class="fixed bottom-6 right-6 p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50 flex items-center justify-center w-14 h-14 group">
+        <button @click="showChat = !showChat"
+            class="fixed bottom-6 right-6 p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50 flex items-center justify-center w-14 h-14 group">
             <i class="ph" :class="showChat ? 'ph-x' : 'ph-chat-teardrop-text'"></i>
-            <span class="absolute right-full mr-4 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <span
+                class="absolute right-full mr-4 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                 {{ showChat ? 'Close Chat' : 'Chat' }}
             </span>
         </button>
 
         <!-- Chat Widget Container -->
-        <div v-show="showChat" class="fixed bottom-24 right-6 z-40 bg-white rounded-lg shadow-xl overflow-hidden" 
-             style="width: 370px; height: 600px; max-height: 80vh;">
-            <chat-messenger url-allowlist="*">
-                <chat-messenger-container
-                    chat-title="Olympia - Cymbal Sports"
-                    chat-title-icon=""
-                    enable-file-upload
-                    enable-audio-input
-                >
-                    <chat-reset-session-button
-                        slot="titlebar-actions"
-                        title-text="Start new chat"
-                    ></chat-reset-session-button>
-                </chat-messenger-container>
+        <div v-show="showChat" class="fixed bottom-24 right-6 z-40 bg-white rounded-lg shadow-xl overflow-hidden"
+            style="width: 370px; height: 600px; max-height: 80vh;">
+            <chat-messenger-container chat-title="Cymbal Sports Web Widget"
+                chat-title-icon="https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
+                enable-file-upload>
+                <chat-reset-session-button slot="titlebar-actions"
+                    title-text="Start new chat"></chat-reset-session-button>
+                <chat-toggle-dialog-button slot="titlebar-actions" title-text-expanded="Collapse"
+                    title-text-collapsed="Expand"></chat-toggle-dialog-button>
+                <chat-messenger-close-button slot="titlebar-actions" title-text="Close"></chat-messenger-close-button>
+            </chat-messenger-container>
             </chat-messenger>
         </div>
 
         <!-- Login / Create Account Modal -->
-        <div v-if="showLogin" class="fixed inset-0 z-[70] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div v-if="showLogin" class="fixed inset-0 z-[70] overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+            aria-modal="true">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showLogin = false"></div>
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+                    @click="showLogin = false"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                <div
+                    class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                     <div>
                         <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100">
                             <i class="ph ph-user text-2xl text-indigo-600"></i>
@@ -370,42 +412,50 @@
                         <div class="mt-5 space-y-4">
                             <div>
                                 <label for="username" class="block text-sm font-medium text-gray-700">User ID</label>
-                                <input type="text" v-model="loginForm.username" id="username" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <input type="text" v-model="loginForm.username" id="username"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                                <input type="password" v-model="loginForm.password" id="password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <input type="password" v-model="loginForm.password" id="password"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             </div>
                             <div v-if="loginError" class="text-red-600 text-sm">{{ loginError }}</div>
                         </div>
                     </div>
                     <div class="mt-5 sm:mt-6 space-y-2">
-                        <button type="button" @click="submitLogin" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
+                        <button type="button" @click="submitLogin"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
                             {{ loginMode === 'login' ? 'Sign In' : 'Create Account' }}
                         </button>
                     </div>
-                     <div class="mt-2 text-center">
-                         <button @click="toggleLoginMode" class="text-xs text-indigo-600 hover:text-indigo-500">
-                             {{ loginMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in' }}
-                         </button>
+                    <div class="mt-2 text-center">
+                        <button @click="toggleLoginMode" class="text-xs text-indigo-600 hover:text-indigo-500">
+                            {{ loginMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in'
+                            }}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Product Details Modal -->
-        <div v-if="selectedProduct" class="fixed inset-0 z-[80] overflow-y-auto" aria-labelledby="product-modal-title" role="dialog" aria-modal="true">
+        <div v-if="selectedProduct" class="fixed inset-0 z-[80] overflow-y-auto" aria-labelledby="product-modal-title"
+            role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="selectedProduct = null"></div>
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+                    @click="selectedProduct = null"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div
+                    class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="w-full">
                                 <div class="relative pb-[56.25%] overflow-hidden rounded-lg bg-gray-100 mb-6">
-                                     <img :src="selectedProduct.image_url" :alt="selectedProduct.title" class="absolute top-0 left-0 w-full h-full object-contain p-4">
+                                    <img :src="selectedProduct.image_url" :alt="selectedProduct.title"
+                                        class="absolute top-0 left-0 w-full h-full object-contain p-4">
                                 </div>
                                 <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-2" id="product-modal-title">
                                     {{ selectedProduct.title }}
@@ -430,18 +480,21 @@
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                         <span class="text-sm font-medium text-gray-500">Category:</span>
-                                         <span class="text-sm font-medium text-gray-900">{{ selectedProduct.category }}</span>
+                                        <span class="text-sm font-medium text-gray-500">Category:</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ selectedProduct.category
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="button" @click="addToCart(selectedProduct); selectedProduct = null" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="button" @click="addToCart(selectedProduct); selectedProduct = null"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
                             Add to Cart
                         </button>
-                        <button type="button" @click="selectedProduct = null" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="button" @click="selectedProduct = null"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Close
                         </button>
                     </div>
@@ -454,17 +507,17 @@
     <!-- Application Logic -->
     <script>
         window.addEventListener("chat-messenger-loaded", () => {
-          chatSdk.registerContext(
-            chatSdk.prebuilts.ces.createContext({
-              deploymentName: "projects/gcloud-interactive-courses/locations/us/apps/dcdd8e75-9b37-46ce-9b9a-8c6fd958e7ef/deployments/746b7e55-15ce-40c8-a935-9d44ee184dd0",
-              tokenBroker: {
-                enableTokenBroker: true,
-                enableRecaptcha: false,
-              },
-            }),
-          );
+            chatSdk.registerContext(
+                chatSdk.prebuilts.ces.createContext({
+                    deploymentName: "projects/gcloud-interactive-courses/locations/us/apps/dcdd8e75-9b37-46ce-9b9a-8c6fd958e7ef/deployments/746b7e55-15ce-40c8-a935-9d44ee184dd0",
+                    tokenBroker: {
+                        enableTokenBroker: true,
+                        enableRecaptcha: false,
+                    },
+                }),
+            );
         });
-        
+
         const { createApp, ref, onMounted, onUnmounted, computed } = Vue;
 
         createApp({
@@ -487,7 +540,7 @@
                 const loginForm = ref({ username: '', password: '' });
                 const loginError = ref('');
                 const isLoggedIn = ref(localStorage.getItem('cymbal_is_logged_in') === 'true');
-                
+
                 // Carousel State
                 const carouselSlides = ref([]);
                 const currentCarouselIndex = ref(0);
@@ -508,7 +561,7 @@
                 const generateUserId = () => {
                     return 'user_' + Math.random().toString(36).substr(2, 9);
                 };
-                
+
                 // Initialize user if not present
                 if (!user.value) {
                     if (isLoggedIn.value) {
@@ -521,16 +574,16 @@
                 }
 
                 const userClick = () => {
-                   if (isLoggedIn.value) {
-                       // Logout confirmation? Or just profile? 
-                       if(confirm('Log out?')) {
-                           logout();
-                       }
-                   } else {
-                       showLogin.value = true;
-                   }
+                    if (isLoggedIn.value) {
+                        // Logout confirmation? Or just profile? 
+                        if (confirm('Log out?')) {
+                            logout();
+                        }
+                    } else {
+                        showLogin.value = true;
+                    }
                 };
-                
+
                 const toggleLoginMode = () => {
                     loginMode.value = loginMode.value === 'login' ? 'create' : 'login';
                     loginError.value = '';
@@ -550,41 +603,41 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(loginForm.value)
                         });
-                        
+
                         const data = await res.json();
-                        
+
                         if (res.ok) {
                             // If creating account, we need to log in now
                             if (loginMode.value === 'create') {
                                 const loginRes = await fetch('/api/login', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(loginForm.value) 
+                                    body: JSON.stringify(loginForm.value)
                                 });
                                 if (!loginRes.ok) {
                                     throw new Error('Account created but login failed');
                                 }
                             }
-                            
+
                             // Set user state
                             user.value = loginForm.value.username;
                             isLoggedIn.value = true;
                             localStorage.setItem('cymbal_user_id', user.value);
                             localStorage.setItem('cymbal_is_logged_in', 'true');
-                            
+
                             // Reset UI
                             showLogin.value = false;
                             loginForm.value = { username: '', password: '' };
-                            
+
                             // Fetch cart for new user
                             await fetchCart();
-                            
+
                         } else {
                             loginError.value = data.detail || 'Authentication failed';
                         }
                     } catch (e) {
-                         console.error(e);
-                         loginError.value = 'An error occurred. Please try again.';
+                        console.error(e);
+                        loginError.value = 'An error occurred. Please try again.';
                     }
                 };
 
@@ -609,7 +662,7 @@
 
                 // Product Details
                 const selectedProduct = ref(null);
-                
+
                 const openProductDetails = (product) => {
                     selectedProduct.value = product;
                 };
@@ -619,11 +672,11 @@
                     if (categories.value.length === 0) {
                         await fetchCategories();
                     }
-                    
+
                     const slides = [];
                     // Pick up to 5 random categories if there are too many, or just shuffle all
                     const shuffledCats = [...categories.value].sort(() => 0.5 - Math.random());
-                    
+
                     for (const cat of shuffledCats) {
                         try {
                             const res = await fetch('/api/products/category/' + cat);
@@ -640,7 +693,7 @@
                             console.error(`Failed to fetch carousl data for ${cat}`, e);
                         }
                         // Limit to 5 slides for performance
-                        if (slides.length >= 5) break; 
+                        if (slides.length >= 5) break;
                     }
                     carouselSlides.value = slides;
                     startCarousel();
@@ -673,7 +726,7 @@
                         let url = category === 'all'
                             ? '/api/products/all'
                             : '/api/products/category/' + category;
-                        
+
                         const res = await fetch(url);
                         products.value = await res.json();
                     } catch (e) {
@@ -682,7 +735,7 @@
                         loading.value.products = false;
                     }
                 };
-                
+
                 const fetchCart = async () => {
                     try {
                         const res = await fetch(`/api/cart/${user.value}`);
@@ -717,7 +770,7 @@
 
                 const removeFromCart = async (item) => {
                     try {
-                         const res = await fetch('/api/cart/remove', {
+                        const res = await fetch('/api/cart/remove', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -764,7 +817,7 @@
                     activeCategory.value = cat;
                     currentView.value = 'products';
                     await fetchProducts(cat);
-                    window.scrollTo(0,0);
+                    window.scrollTo(0, 0);
                 };
 
                 // --- Lifecycle ---
@@ -816,4 +869,5 @@
         }).mount('#app');
     </script>
 </body>
+
 </html>
