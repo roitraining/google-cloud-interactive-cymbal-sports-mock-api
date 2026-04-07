@@ -372,15 +372,18 @@
         <!-- Chat Widget Container -->
         <div v-show="showChat" class="fixed bottom-24 right-6 z-40 bg-white rounded-lg shadow-xl overflow-hidden"
             style="width: 370px; height: 600px; max-height: 80vh;">
-            <chat-messenger-container chat-title="Cymbal Sports Web Widget"
-                chat-title-icon="https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
-                enable-file-upload>
-                <chat-reset-session-button slot="titlebar-actions"
-                    title-text="Start new chat"></chat-reset-session-button>
-                <chat-toggle-dialog-button slot="titlebar-actions" title-text-expanded="Collapse"
-                    title-text-collapsed="Expand"></chat-toggle-dialog-button>
-                <chat-messenger-close-button slot="titlebar-actions" title-text="Close"></chat-messenger-close-button>
-            </chat-messenger-container>
+            <!-- Update the url-allowlist attribute with a comma-separated list of origins allowed to render images -->
+            <chat-messenger url-allowlist="*">
+                <chat-messenger-container chat-title="Cymbal Sports Web Widget"
+                    chat-title-icon="https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
+                    enable-file-upload>
+                    <chat-reset-session-button slot="titlebar-actions"
+                        title-text="Start new chat"></chat-reset-session-button>
+                    <chat-toggle-dialog-button slot="titlebar-actions" title-text-expanded="Collapse"
+                        title-text-collapsed="Expand"></chat-toggle-dialog-button>
+                    <chat-messenger-close-button slot="titlebar-actions"
+                        title-text="Close"></chat-messenger-close-button>
+                </chat-messenger-container>
             </chat-messenger>
         </div>
 
@@ -509,11 +512,11 @@
         window.addEventListener("chat-messenger-loaded", () => {
             chatSdk.registerContext(
                 chatSdk.prebuilts.ces.createContext({
-                    deploymentName: "projects/gcloud-interactive-courses/locations/us/apps/dcdd8e75-9b37-46ce-9b9a-8c6fd958e7ef/deployments/746b7e55-15ce-40c8-a935-9d44ee184dd0",
+                    deploymentName: "projects/270259231695/locations/us/apps/dcdd8e75-9b37-46ce-9b9a-8c6fd958e7ef/deployments/746b7e55-15ce-40c8-a935-9d44ee184dd0",
                     tokenBroker: {
                         enableTokenBroker: true,
-                        enableRecaptcha: false,
-                    },
+                        enableRecaptcha: false
+                    }
                 }),
             );
         });
